@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a Surprise | LoveLink</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <a class="logo" href="/">LoveLink <span>♥</span></a>
+        <p>Little things, big feelings.</p>
+    </header>
+    <main class="hero">
+        <section class="page-card">
+            <p class="eyebrow">MAKE IT PERSONAL</p>
+            <h1>Create a <span>surprise.</span></h1>
+            <p>Write a little note for someone special. We’ll make a code to open it on this device.</p>
+            <form class="surprise-form" id="surprise-form">
+                <label for="recipient">Their name</label>
+                <input id="recipient" name="recipient" maxlength="60" required>
+                <label for="message">Your message</label>
+                <textarea id="message" name="message" maxlength="1000" required></textarea>
+                <button type="submit">Create surprise</button>
+            </form>
+            <p class="status-message" id="result" role="status" aria-live="polite"></p>
+            <a class="back-link" href="/">← Back home</a>
+        </section>
+    </main>
+    <script>
+        const form = document.getElementById("surprise-form");
+        const result = document.getElementById("result");
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const code = crypto.getRandomValues(new Uint32Array(1))[0]
+                .toString(36).slice(0, 6).toUpperCase().padStart(6, "0");
+            const surprise = {
+                recipient: form.elements.recipient.value.trim(),
+                message: form.elements.message.value.trim()
+            };
+
+            if (!surprise.recipient || !surprise.message) {
+                result.textContent = "Please enter a name and a message.";
+                return;
+            }
+
+            try {
+                localStorage.setItem(`lovelink:${code}`, JSON.stringify(surprise));
+                result.textContent = `Your surprise is ready! Share code ${code} and open the Receiver page on this device.`;
+                form.reset();
+            } catch (error) {
+                result.textContent = "Could not save the surprise in this browser. Check your browser storage settings and try again.";
+            }
+        });
+    </script>
+</body>
+</html>

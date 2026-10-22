@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open a Surprise | LoveLink</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <a class="logo" href="/">LoveLink <span>♥</span></a>
+        <p>Little things, big feelings.</p>
+    </header>
+    <main class="hero">
+        <section class="page-card">
+            <p class="eyebrow">SOMETHING SPECIAL IS WAITING</p>
+            <h1>Open your <span>surprise.</span></h1>
+            <p>Enter the code from your sender to reveal their message.</p>
+            <form class="surprise-form" id="receiver-form">
+                <label for="code">Surprise code</label>
+                <input id="code" name="code" maxlength="6" pattern="[A-Za-z0-9]{6}" autocomplete="off" required>
+                <button type="submit">Open surprise</button>
+            </form>
+            <div class="status-message" id="result" role="status" aria-live="polite"></div>
+            <a class="back-link" href="/">← Back home</a>
+        </section>
+    </main>
+    <script>
+        const form = document.getElementById("receiver-form");
+        const result = document.getElementById("result");
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const code = form.elements.code.value.trim().toUpperCase();
+
+            try {
+                const saved = localStorage.getItem(`lovelink:${code}`);
+                if (!saved) {
+                    result.textContent = "We couldn’t find that surprise on this device. Check the code and try again.";
+                    return;
+                }
+
+                const surprise = JSON.parse(saved);
+                if (typeof surprise.recipient !== "string" || typeof surprise.message !== "string") {
+                    result.textContent = "This surprise could not be opened. Ask your sender to create it again.";
+                    return;
+                }
+
+                result.replaceChildren();
+                const greeting = document.createElement("strong");
+                greeting.textContent = `For ${surprise.recipient} ♥`;
+                const message = document.createElement("p");
+                message.textContent = surprise.message;
+                result.append(greeting, message);
+            } catch (error) {
+                result.textContent = "Could not read this surprise in your browser. Check your browser storage settings and try again.";
+            }
+        });
+    </script>
+</body>
+</html>
